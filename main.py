@@ -3,6 +3,7 @@ import csv
 import os
 import traceback
 import re
+from matplotlib import pyplot as plt
 
 
 fd = os.path.sep  # folder delimiter
@@ -44,7 +45,39 @@ def print_total_km(subset):
                     str(int(total_distance(subset)/1000)))
     print('You have run {} km in total'.format(buffer))
 
+def get_field_list(data, field):
+    result = []
+    for e in data:
+        result.append(e[field])
+    return result
+
+def plot_float_list(data, factor=1.0):
+    if factor >= 0.0:
+        series = []
+        for e in data:
+            try:
+                current = float(e)/factor
+            except ValueError:
+                pass
+            series.append(current)
+        plt.plot(series)
+        plt.show()
+    else:
+        print('Invalid factor')
+
+def filter_run(data):
+    filtered = []
+    for e in data:
+        if e['Activity Type'] == 'Run':
+            filtered.append(e)
+    return filtered
+
 
 if __name__ == "__main__":
     fields, data = reader(fn)
     print_total_km(data)
+    run_data = filter_run(data)
+    speed = get_field_list(run_data, 'Average Speed')
+    plot_float_list(speed)
+    dist = get_field_list(run_data, 'Distance')
+    plot_float_list(dist, factor=1000)
