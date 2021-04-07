@@ -3,7 +3,9 @@ import csv
 import os
 import traceback
 import re
+import itertools as it
 from matplotlib import pyplot as plt
+from datetime import datetime
 
 
 fd = os.path.sep  # folder delimiter
@@ -45,15 +47,18 @@ def print_total_km(subset):
                     str(int(total_distance(subset)/1000)))
     print('You have run {} km in total'.format(buffer))
 
+
 def get_field_list(data, field):
     result = []
     for e in data:
         result.append(e[field])
     return result
 
-def plot_float_list(data, factor=1.0):
+
+def plot_float_list(data, factor=1.0, title=""):
     if factor >= 0.0:
         series = []
+        current = None
         for e in data:
             try:
                 current = float(e)/factor
@@ -61,16 +66,38 @@ def plot_float_list(data, factor=1.0):
                 pass
             series.append(current)
         plt.plot(series)
+        plt.title(title)
         plt.show()
     else:
         print('Invalid factor')
 
+
 def filter_run(data):
-    filtered = []
-    for e in data:
-        if e['Activity Type'] == 'Run':
-            filtered.append(e)
-    return filtered
+    return list(filter(lambda x: x['Activity Type'] == 'Run', data))
+
+
+def time_str_to_datetime(date_str):
+    return datetime.strptime(date_str, '%b %d, %Y, %I:%M:%S %p')
+
+
+def filter_year(year, data):
+    return list(filter(lambda x: time_str_to_datetime(x['Activity Date']).year == year, data))
+
+
+def min_per_km(e):
+    return (float(e['Moving Time'])/60)/(float(e['Distance'])/1000)
+
+
+def get_min_per_km(data):
+    return list(map(lambda x: min_per_km(x), data))
+
+
+def avg(l):
+    return sum(l) / len(l)
+
+
+def list_3_avg(l):
+    return [avg(l[i:(i+3)]) for i in range(0, len(l), 3)]
 
 
 if __name__ == "__main__":
@@ -78,6 +105,17 @@ if __name__ == "__main__":
     print_total_km(data)
     run_data = filter_run(data)
     speed = get_field_list(run_data, 'Average Speed')
-    plot_float_list(speed)
+    plot_float_list(speed, title='Average Speed')
     dist = get_field_list(run_data, 'Distance')
-    plot_float_list(dist, factor=1000)
+    plot_float_list(dist, factor=1000, title='Distance',)
+
+    run_data_2020 = filter_year(2020, filter_run(data))
+    print_total_km(run_data_2020)
+    speed = get_min_per_km(run_data_2020)
+    plot_float_list(speed, title='Speeds 2020')
+
+    plot_float_list(list_3_avg(speed), title='Speeds 3 avg 2020')
+
+    dist_acu = list(it.accumulate(map(lambda x: float(x),
+                                      get_field_list(run_data_2020, 'Distance'))))
+    plot_float_list(dist_acu, factor=1000, title='Distance accumulated 2020',)
