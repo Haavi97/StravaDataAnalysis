@@ -7,31 +7,12 @@ import itertools as it
 from matplotlib import pyplot as plt
 from datetime import datetime
 
+from stravaReader import reader
+from stravaActivity import StravaActivity
+from stravaSet import StravaSet
 
 fd = os.path.sep  # folder delimiter
 fn = 'activities.csv'
-
-
-def reader(file_name):
-    current_path = os.getcwd() + fd + str(file_name)
-    result = []
-    try:
-        with open(current_path, encoding="utf8") as csv_file:
-            csv_reader = csv.DictReader(csv_file, delimiter=",")
-            field_names = csv_reader.fieldnames
-            line_count = 0
-            try:
-                for row in csv_reader:
-                    result.append(row)
-                    line_count += 1
-            except Exception:  # catching unicode error. Still don't know the problem
-                traceback.print_exc()
-                pass
-        print('Columns read: {}'.format(line_count))
-        return field_names, result
-    except FileNotFoundError:
-        print(('Please check that you have your file {}' +
-               ' in the same folder as this script').format(file_name))
 
 
 def total_distance(data):
@@ -118,4 +99,13 @@ if __name__ == "__main__":
 
     dist_acu = list(it.accumulate(map(lambda x: float(x),
                                       get_field_list(run_data_2020, 'Distance'))))
-    plot_float_list(dist_acu, factor=1000, title='Distance accumulated 2020',)
+    plot_float_list(dist_acu, factor=1000, title='Distance accumulated 2020')
+
+    d_acu = list(it.accumulate(map(lambda x: float(x)/1000,
+                                   get_field_list(run_data_2020, 'Distance'))))
+
+    t_acu = list(it.accumulate(map(lambda x: float(x)/60,
+                                   get_field_list(run_data_2020, 'Moving Time'))))
+
+    speed_acu = list(map(lambda x, y: x/y, t_acu, d_acu))
+    plot_float_list(speed_acu, title='Speed accumulated 2020 (min/km)')
