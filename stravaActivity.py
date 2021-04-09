@@ -18,11 +18,12 @@ class StravaActivity():
             activity['Activity Date'], '%b %d, %Y, %I:%M:%S %p')
         self.distance = float(activity['Distance'])
         self.moving_time = float(activity['Moving Time'])
+        self.type = activity['Activity Type']
 
     def get_km(self):
         return self.distance/1000
 
-    def get_min(self):
+    def get_minutes(self):
         """Get moving time of the activity in minutes"""
         return self.moving_time/60
 

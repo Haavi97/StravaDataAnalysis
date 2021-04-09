@@ -83,29 +83,7 @@ def list_3_avg(l):
 
 if __name__ == "__main__":
     fields, data = reader(fn)
-    print_total_km(data)
-    run_data = filter_run(data)
-    speed = get_field_list(run_data, 'Average Speed')
-    plot_float_list(speed, title='Average Speed')
-    dist = get_field_list(run_data, 'Distance')
-    plot_float_list(dist, factor=1000, title='Distance',)
-
-    run_data_2020 = filter_year(2020, filter_run(data))
-    print_total_km(run_data_2020)
-    speed = get_min_per_km(run_data_2020)
-    plot_float_list(speed, title='Speeds 2020')
-
-    plot_float_list(list_3_avg(speed), title='Speeds 3 avg 2020')
-
-    dist_acu = list(it.accumulate(map(lambda x: float(x),
-                                      get_field_list(run_data_2020, 'Distance'))))
-    plot_float_list(dist_acu, factor=1000, title='Distance accumulated 2020')
-
-    d_acu = list(it.accumulate(map(lambda x: float(x)/1000,
-                                   get_field_list(run_data_2020, 'Distance'))))
-
-    t_acu = list(it.accumulate(map(lambda x: float(x)/60,
-                                   get_field_list(run_data_2020, 'Moving Time'))))
-
-    speed_acu = list(map(lambda x, y: x/y, t_acu, d_acu))
-    plot_float_list(speed_acu, title='Speed accumulated 2020 (min/km)')
+    activities = map(lambda x: StravaActivity(x), data)
+    strava_set = StravaSet(activities)
+    strava_set.print_total_km()
+    strava_set.plot_distance(new_thread=False)
