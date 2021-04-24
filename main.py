@@ -16,7 +16,7 @@ fn = 'activities.csv'
 
 
 def total_distance(data):
-    """Total distance given in meters"""
+    """Total distance given in meters."""
     total_distance = 0
     for e in data:
         total_distance += float(e['Distance'])
@@ -85,5 +85,10 @@ if __name__ == "__main__":
     fields, data = reader(fn)
     activities = map(lambda x: StravaActivity(x), data)
     strava_set = StravaSet(activities)
-    strava_set.print_total_km()
-    strava_set.plot_distance(new_thread=False)
+    run_set = StravaSet(strava_set.filter_run())
+    run_20_21 = StravaSet(
+        it.chain(run_set.filter_year(2020), run_set.filter_year(2021)))
+    run_20_21.print_total_km()
+    run_20_21.plot_distance(new_thread=False)
+    run_20_21.plot_accumulated_distance(new_thread=False)
+    run_20_21.plot_accumulated_speed(new_thread=False)
