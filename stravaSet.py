@@ -4,6 +4,7 @@ import numpy as np
 
 from functools import reduce
 from threading import Thread
+from datetime import timedelta
 from matplotlib import pyplot as plt
 
 
@@ -98,3 +99,17 @@ class StravaSet():
         else:
             self.plot_series(sa,
                              title=tstr + title_added, axis_labels=self.get_paded_dates(10))
+
+    def fill_all_days(self):
+        itertor = iter(self.activities)
+        current = next(itertor)
+        current_day = current.date
+        current_day += timedelta(days=1)
+        for e in itertor:
+            while e.date - current_day > timedelta(days=1):
+                current_day += timedelta(days=1)
+                current.date = current_day
+                yield current
+            current = e
+            yield current
+                 

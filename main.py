@@ -92,3 +92,11 @@ if __name__ == "__main__":
     run_20_21.plot_distance(new_thread=False)
     run_20_21.plot_accumulated_distance(new_thread=False)
     run_20_21.plot_accumulated_speed(new_thread=False)
+
+    run_set = StravaSet(run_set.fill_all_days())
+    run_20_21 = StravaSet(
+        it.chain(run_set.filter_year(2020), run_set.filter_year(2021)))
+    run_20_21.print_total_km()
+    run_20_21.plot_distance(new_thread=False)
+    run_20_21.plot_accumulated_distance(new_thread=False)
+    run_20_21.plot_accumulated_speed(new_thread=False)

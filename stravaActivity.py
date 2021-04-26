@@ -29,3 +29,7 @@ class StravaActivity():
 
     def get_min_per_km(self):
         return self.get_km()
+
+    def empty(self):
+        self.distance = 0
+        self.moving_time = 0
