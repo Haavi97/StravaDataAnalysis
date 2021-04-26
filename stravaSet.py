@@ -5,6 +5,7 @@ import numpy as np
 from functools import reduce
 from threading import Thread
 from datetime import timedelta
+from copy import deepcopy
 from matplotlib import pyplot as plt
 
 
@@ -67,6 +68,16 @@ class StravaSet():
         plt.tight_layout()
         plt.show()
 
+    def scatter_series(self, series, title='""', axis_labels=[]):
+        self.figs += 1
+        plt.figure(self.figs)
+        plt.plot(series, marker='o', linestyle='None')
+        plt.title(title)
+        if axis_labels != []:
+            plt.xticks(np.arange(len(axis_labels)), axis_labels, rotation=45)
+        plt.tight_layout()
+        plt.show()
+
     def plot_series_new_thread(self, series, title=''):
         t = Thread(target=self.plot_series, args=[series, title])
         t.start()
@@ -78,6 +89,10 @@ class StravaSet():
         else:
             self.plot_series(self.get_distance_list(),
                              title="Distance " + title_added, axis_labels=self.get_paded_dates(10))
+
+    def scatter_distance(self, new_thread=True, title_added=''):
+        self.scatter_series(self.get_distance_list(),
+                            title="Distance " + title_added, axis_labels=self.get_paded_dates(10))
 
     def plot_accumulated_distance(self, new_thread=True, title_added=''):
         da = list(it.accumulate(self.get_distance_iter()))
@@ -91,7 +106,7 @@ class StravaSet():
     def plot_accumulated_speed(self, new_thread=True, title_added=''):
         da = it.accumulate(self.get_distance_iter())
         ta = it.accumulate(self.get_moving_time_iter())
-        sa = list(map(lambda x, y: x/y, da, ta))
+        sa = list(map(lambda x, y: x/y if y!=0 else 0, da, ta))
         tstr = "Accumulated speed in (m/s)"
         if new_thread:
             self.plot_series_new_thread(sa,
@@ -101,15 +116,15 @@ class StravaSet():
                              title=tstr + title_added, axis_labels=self.get_paded_dates(10))
 
     def fill_all_days(self):
-        itertor = iter(self.activities)
-        current = next(itertor)
+        iterator = iter(self.activities)
+        current = deepcopy(next(iterator))
+        yield current
         current_day = current.date
-        current_day += timedelta(days=1)
-        for e in itertor:
-            while e.date - current_day > timedelta(days=1):
+        for e in iterator:
+            while e.date.day != current_day.day:
                 current_day += timedelta(days=1)
                 current.date = current_day
+                current.empty()
                 yield current
-            current = e
+            current = deepcopy(e)
             yield current
-                 
