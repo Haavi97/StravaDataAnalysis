@@ -18,6 +18,7 @@ class StravaSet():
         """
         self.activities = list(activities)
         self.figs = 0
+        self.n = 10
 
     def get_total_distance(self):
         """Total distance given in meters."""
@@ -88,11 +89,11 @@ class StravaSet():
                                         title="Distance " + title_added)
         else:
             self.plot_series(self.get_distance_list(),
-                             title="Distance " + title_added, axis_labels=self.get_paded_dates(10))
+                             title="Distance " + title_added, axis_labels=self.get_paded_dates(self.n))
 
     def scatter_distance(self, new_thread=True, title_added=''):
         self.scatter_series(self.get_distance_list(),
-                            title="Distance " + title_added, axis_labels=self.get_paded_dates(10))
+                            title="Distance " + title_added, axis_labels=self.get_paded_dates(self.n))
 
     def plot_accumulated_distance(self, new_thread=True, title_added=''):
         da = list(it.accumulate(self.get_distance_iter()))
@@ -101,7 +102,7 @@ class StravaSet():
                                         title="Accumulated distance " + title_added)
         else:
             self.plot_series(da,
-                             title="Accumulated distance " + title_added, axis_labels=self.get_paded_dates(10))
+                             title="Accumulated distance " + title_added, axis_labels=self.get_paded_dates(self.n))
 
     def plot_accumulated_speed(self, new_thread=True, title_added=''):
         da = it.accumulate(self.get_distance_iter())
@@ -113,18 +114,23 @@ class StravaSet():
                                         title=tstr + title_added)
         else:
             self.plot_series(sa,
-                             title=tstr + title_added, axis_labels=self.get_paded_dates(10))
+                             title=tstr + title_added, axis_labels=self.get_paded_dates(self.n))
 
     def fill_all_days(self):
         iterator = iter(self.activities)
-        current = deepcopy(next(iterator))
-        yield current
+        first_element = next(iterator)
+        yield first_element
+        current = deepcopy(first_element)
         current_day = current.date
         for e in iterator:
             while e.date.day != current_day.day:
                 current_day += timedelta(days=1)
-                current.date = current_day
-                current.empty()
-                yield current
+                to_yield = deepcopy(current)
+                to_yield.date = current_day
+                to_yield.empty()
+                yield to_yield
             current = deepcopy(e)
             yield current
+
+    def set_xticks_distance(self, n):
+        self.n = n
