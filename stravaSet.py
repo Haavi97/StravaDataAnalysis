@@ -25,10 +25,10 @@ class StravaSet():
         return reduce(lambda x, y: x+y, self.get_distance_iter())
 
     def get_distance_iter(self):
-        return map(lambda x: x.distance, self.activities)
+        return map(lambda x: x.distance/1000, self.activities)
 
     def get_moving_time_iter(self):
-        return map(lambda x: x.moving_time, self.activities)
+        return map(lambda x: x.moving_time/60, self.activities)
 
     def get_dates_iter(self):
         return map(lambda x: x.date.strftime("%d/%m/%Y"), self.activities)
@@ -45,7 +45,7 @@ class StravaSet():
 
     def print_total_km(self):
         buffer = re.sub(r"\B(?=\d{3})+", " ",
-                        str(int(self.get_total_distance()/1000)))
+                        str(int(self.get_total_distance())))
         print('You have run {} km in total'.format(buffer))
 
     def filter_run(self):
@@ -62,7 +62,7 @@ class StravaSet():
     def plot_series(self, series, title='""', axis_labels=[]):
         self.figs += 1
         plt.figure(self.figs)
-        plt.plot(series)
+        plt.plot(series, color='r')
         plt.title(title)
         if axis_labels != []:
             plt.xticks(np.arange(len(axis_labels)), axis_labels, rotation=45)
@@ -72,7 +72,7 @@ class StravaSet():
     def scatter_series(self, series, title='""', axis_labels=[]):
         self.figs += 1
         plt.figure(self.figs)
-        plt.plot(series, marker='o', linestyle='None')
+        plt.plot(zero_to_nan(series), marker='o', linestyle='None', color='r')
         plt.title(title)
         if axis_labels != []:
             plt.xticks(np.arange(len(axis_labels)), axis_labels, rotation=45)
@@ -93,7 +93,7 @@ class StravaSet():
 
     def scatter_distance(self, new_thread=True, title_added=''):
         self.scatter_series(self.get_distance_list(),
-                            title="Distance " + title_added, axis_labels=self.get_paded_dates(self.n))
+                            title="Distance km" + title_added, axis_labels=self.get_paded_dates(self.n))
 
     def plot_accumulated_distance(self, new_thread=True, title_added=''):
         da = list(it.accumulate(self.get_distance_iter()))
@@ -102,13 +102,13 @@ class StravaSet():
                                         title="Accumulated distance " + title_added)
         else:
             self.plot_series(da,
-                             title="Accumulated distance " + title_added, axis_labels=self.get_paded_dates(self.n))
+                             title="Accumulated distance (km)" + title_added, axis_labels=self.get_paded_dates(self.n))
 
     def plot_accumulated_speed(self, new_thread=True, title_added=''):
         da = it.accumulate(self.get_distance_iter())
         ta = it.accumulate(self.get_moving_time_iter())
-        sa = list(map(lambda x, y: x/y if y!=0 else 0, da, ta))
-        tstr = "Accumulated speed in (m/s)"
+        sa = list(map(lambda x, y: x/(y/60) if y!=0 else 0, da, ta))
+        tstr = "Accumulated speed in (km/h)"
         if new_thread:
             self.plot_series_new_thread(sa,
                                         title=tstr + title_added)
@@ -134,3 +134,9 @@ class StravaSet():
 
     def set_xticks_distance(self, n):
         self.n = n
+
+
+def zero_to_nan(values):
+    """Replace every 0 with 'nan' and return a copy."""
+    '''From: https://stackoverflow.com/questions/18697417/not-plotting-zero-in-matplotlib-or-change-zero-to-none-python'''
+    return [float('nan') if x==0 else x for x in values]
