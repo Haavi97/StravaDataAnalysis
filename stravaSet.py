@@ -79,42 +79,26 @@ class StravaSet():
         plt.tight_layout()
         plt.show()
 
-    def plot_series_new_thread(self, series, title=''):
-        t = Thread(target=self.plot_series, args=[series, title])
-        t.start()
+    def plot_distance(self, title_added=''):
+        self.plot_series(self.get_distance_list(),
+                         title="Distance " + title_added, axis_labels=self.get_paded_dates(self.n))
 
-    def plot_distance(self, new_thread=True, title_added=''):
-        if new_thread:
-            self.plot_series_new_thread(self.get_distance_list(),
-                                        title="Distance " + title_added)
-        else:
-            self.plot_series(self.get_distance_list(),
-                             title="Distance " + title_added, axis_labels=self.get_paded_dates(self.n))
-
-    def scatter_distance(self, new_thread=True, title_added=''):
+    def scatter_distance(self, title_added=''):
         self.scatter_series(self.get_distance_list(),
                             title="Distance km" + title_added, axis_labels=self.get_paded_dates(self.n))
 
-    def plot_accumulated_distance(self, new_thread=True, title_added=''):
+    def plot_accumulated_distance(self, title_added=''):
         da = list(it.accumulate(self.get_distance_iter()))
-        if new_thread:
-            self.plot_series_new_thread(da,
-                                        title="Accumulated distance " + title_added)
-        else:
-            self.plot_series(da,
-                             title="Accumulated distance (km)" + title_added, axis_labels=self.get_paded_dates(self.n))
+        self.plot_series(da,
+                         title="Accumulated distance (km)" + title_added, axis_labels=self.get_paded_dates(self.n))
 
-    def plot_accumulated_speed(self, new_thread=True, title_added=''):
+    def plot_accumulated_speed(self, title_added=''):
         da = it.accumulate(self.get_distance_iter())
         ta = it.accumulate(self.get_moving_time_iter())
-        sa = list(map(lambda x, y: x/(y/60) if y!=0 else 0, da, ta))
+        sa = list(map(lambda x, y: x/(y/60) if y != 0 else 0, da, ta))
         tstr = "Accumulated speed in (km/h)"
-        if new_thread:
-            self.plot_series_new_thread(sa,
-                                        title=tstr + title_added)
-        else:
-            self.plot_series(sa,
-                             title=tstr + title_added, axis_labels=self.get_paded_dates(self.n))
+        self.plot_series(sa,
+                         title=tstr + title_added, axis_labels=self.get_paded_dates(self.n))
 
     def fill_all_days(self):
         iterator = iter(self.activities)
@@ -139,4 +123,4 @@ class StravaSet():
 def zero_to_nan(values):
     """Replace every 0 with 'nan' and return a copy."""
     '''From: https://stackoverflow.com/questions/18697417/not-plotting-zero-in-matplotlib-or-change-zero-to-none-python'''
-    return [float('nan') if x==0 else x for x in values]
+    return [float('nan') if x == 0 else x for x in values]
