@@ -7,7 +7,7 @@ def get_file_full_path(file_name='activities.csv'):
     return os.getcwd() + os.path.sep + str(file_name)
 
 
-def reader(file_name='activities.csv'):
+def reader(file_name='activities.csv', verbose=False):
     result = []
     try:
         with open(get_file_full_path(file_name), encoding="utf8") as csv_file:
@@ -21,7 +21,7 @@ def reader(file_name='activities.csv'):
             except Exception:
                 traceback.print_exc()
                 pass
-        print('Columns read: {}'.format(line_count))
+        print('Columns read: {}'.format(line_count)) if verbose else 1
         return field_names, result
     except FileNotFoundError:
         print(('Please check that you have your file {}' +
