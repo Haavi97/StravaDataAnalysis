@@ -7,3 +7,11 @@ Data is retrived following this [steps](https://support.strava.com/hc/en-us/arti
 
 ## USAGE
 Just download your own data and change a bit the plots you want in the ```main.py``` file. Any suggestions to do in the future are welcome or even directly contributing.
+
+## TODO
+- [ ] Create CLI app
+- [ ] Parse command: --year=*
+- [ ] Parse command: --type=*
+- [ ] Parse command: --file=*
+- [ ] Parse command: --verbose or -v
+- [ ] Create CLI menu using --menu
