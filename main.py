@@ -4,6 +4,7 @@ import os
 import traceback
 import re
 import multiprocessing
+import argparse
 import itertools as it
 from matplotlib import pyplot as plt
 from datetime import datetime
@@ -27,3 +28,9 @@ if __name__ == "__main__":
     activities = map(lambda x: StravaActivity(x), data)
     # Building up a StravaSet
     strava_set = StravaSet(activities)
+
+    parser = argparse.ArgumentParser(description='Process some Strava data ' + \
+        'to produce plots and get some statistics.')
+
+    args = parser.parse_args()
+    print(args)
